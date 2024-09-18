@@ -11,11 +11,11 @@ import java.io.IOException;
 public class PigGame {
 	/** variables */
 	Dice dice;
-	int totalY, totalC, round, rollNum, turnSum;
+	int yourTotal, compTotal, round, rollNum, turnSum, roll1;
 	char move;
 	/** constructor */
 	public PigGame() {
-		totalY = totalC = round = rollNum = turnSum = 0;
+		yourTotal = compTotal = round = rollNum = turnSum = 0;
 	}
 	/** main class */
 	public static void main(String [] args) {
@@ -32,25 +32,56 @@ public class PigGame {
 		} while(playGame != 'p' && playGame != 'p');
 		
 		if(playGame == 'p') {
-			rollNum = 0;
-			System.out.print("\n");
-			System.out.println("Your turn score: "+rollNum);
-			System.out.println("Your total score: "+totalY);
-			do {
-				move = Prompt.getChar("(r)oll or (h)old -> ");
-			} while(playGame != 'r' && playGame != 'h');
-			while(move == 'r') {
+			while(yourTotal < 100 && compTotal < 100) {
+				rollNum = roll1 = 0;
 				System.out.print("\n");
-				System.out.println("You ROLL");
-				rollNum += dice.roll();
-				dice.printDice();
 				System.out.println("Your turn score: "+rollNum);
-				System.out.println("Your total score: "+totalY);
-				move = Prompt.getChar("(r)oll or (h)old -> ");
+				System.out.println("Your total score: "+yourTotal);
+				do {
+					move = Prompt.getChar("(r)oll or (h)old -> ");
+				} while(move != 'r' && move != 'h');
+				while(move == 'r' && roll1!=1) {
+					System.out.print("\n");
+					System.out.println("You ROLL");
+					roll1 = dice.roll();
+					rollNum += roll1;
+					dice.printDice();
+					System.out.println("Your turn score: "+rollNum);
+					System.out.println("Your total score: "+yourTotal);
+					if(roll1 == 1) {
+						System.out.println("\nYou LOSE your turn.");
+					}
+					else {
+						move = Prompt.getChar("(r)oll or (h)old -> ");
+					}
+				}
+				if(move == 'h') {
+					System.out.println("\nYou HOLD");
+					yourTotal += rollNum;
+				}
+				System.out.println("Your total score: "+yourTotal);
+				if(yourTotal < 100) {
+					rollNum = roll1 = 0;
+					System.out.print("\n");
+					System.out.println("Computer turn score: "+rollNum);
+					System.out.println("Computer total score: "+compTotal);
+					Prompt.getString("Press enter for computer turn");
+					while(rollNum < 20 && roll1 != 1) {
+						System.out.println("\nComputer will ROLL");
+						roll1 = dice.roll();
+						rollNum += roll1;
+						dice.printDice();
+						System.out.println("Computer turn score: "+rollNum);
+						System.out.println("Computer total score: "+compTotal);
+						if(roll1 == 1) {
+							System.out.println("\nComputer LOSES their turn.");
+						}
+						else {
+							Prompt.getString("Press enter for computer turn");
+						}
+					}
+				}
 			}
-			System.out.print("\nYou HOLD");
-			totalY += rollNum;
-			System.out.print("Your total score: "+totalY);
 		}	
 	}
 	/**	Print the introduction to the game */
