@@ -3,19 +3,24 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 /**
  *	The game of Pig.
- *	(Description here)
+ *	Plays a dice game against a computer where each player decides to 
+   	* hold their collective points or roll each turn. A roll of 1 makes 
+   	* you lose your round points and try to reach 100.
  *
- *	@author	
- *	@since	
+ *	@author	Elaina Pan
+ *	@since	9/10/24
  */
 public class PigGame {
 	/** variables */
-	Dice dice;
-	int yourTotal, compTotal, round, rollNum, turnSum, roll1;
-	char move;
-	/** constructor */
+	Dice dice; // the dice object that is used in the game
+	int yourTotal; // your total score after each round
+	int compTotal; // computer's total score after each round
+	int round; // one's score in the specific round
+	int roll1; // the value on one roll of the die
+	char move; // whether you choose to roll or hold
+	/** constructor, initializes methods */
 	public PigGame() {
-		yourTotal = compTotal = round = rollNum = turnSum = 0;
+		yourTotal = compTotal = round = roll1 = 0;
 	}
 	/** main class */
 	public static void main(String [] args) {
@@ -26,63 +31,129 @@ public class PigGame {
 	public void runner() {
 		printIntroduction();
 		dice = new Dice();
-		char playGame;
+		char playGame; // whether you play the game or run statistics
 		do {
 			playGame = Prompt.getChar("Play game or Statistics (p or s)");
-		} while(playGame != 'p' && playGame != 'p');
+		} while(playGame != 'p' && playGame != 's');
 		
 		if(playGame == 'p') {
-			while(yourTotal < 100 && compTotal < 100) {
-				rollNum = roll1 = 0;
+			playGame();
+		}	
+		else if(playGame == 's') {
+			statistics();
+		}
+			
+	}
+	/** plays the game */
+	public void playGame() {
+		while(yourTotal < 100 && compTotal < 100) {
+			round = roll1 = 0;
+			System.out.print("\n");
+			do {
+				System.out.println("Your turn score: "+round);
+				System.out.println("Your total score: "+yourTotal);
+				move = Prompt.getChar("(r)oll or (h)old -> ");
+			} while(move != 'r' && move != 'h');
+			while(move == 'r' && roll1!=1) {
 				System.out.print("\n");
-				System.out.println("Your turn score: "+rollNum);
+				System.out.println("You ROLL");
+				roll1 = dice.roll();
+				round += roll1;
+				dice.printDice();
+				System.out.println("Your turn score: "+round);
 				System.out.println("Your total score: "+yourTotal);
-				do {
+				if(roll1 == 1) {
+					System.out.println("\nYou LOSE your turn.");
+				}
+				else {
 					move = Prompt.getChar("(r)oll or (h)old -> ");
-				} while(move != 'r' && move != 'h');
-				while(move == 'r' && roll1!=1) {
-					System.out.print("\n");
-					System.out.println("You ROLL");
-					roll1 = dice.roll();
-					rollNum += roll1;
-					dice.printDice();
-					System.out.println("Your turn score: "+rollNum);
-					System.out.println("Your total score: "+yourTotal);
-					if(roll1 == 1) {
-						System.out.println("\nYou LOSE your turn.");
-					}
-					else {
-						move = Prompt.getChar("(r)oll or (h)old -> ");
-					}
-				}
-				if(move == 'h') {
-					System.out.println("\nYou HOLD");
-					yourTotal += rollNum;
-				}
-				System.out.println("Your total score: "+yourTotal);
-				if(yourTotal < 100) {
-					rollNum = roll1 = 0;
-					System.out.print("\n");
-					System.out.println("Computer turn score: "+rollNum);
-					System.out.println("Computer total score: "+compTotal);
-					Prompt.getString("Press enter for computer turn");
-					while(rollNum < 20 && roll1 != 1) {
-						System.out.println("\nComputer will ROLL");
-						roll1 = dice.roll();
-						rollNum += roll1;
-						dice.printDice();
-						System.out.println("Computer turn score: "+rollNum);
-						System.out.println("Computer total score: "+compTotal);
-						if(roll1 == 1) {
-							System.out.println("\nComputer LOSES their turn.");
-						}
-						else {
-							Prompt.getString("Press enter for computer turn");
-						}
-					}
 				}
 			}
-		}	
+			if(move == 'h') {
+				System.out.println("\nYou HOLD");
+				yourTotal += round;
+			}
+			System.out.println("Your total score: "+yourTotal);
+			if(yourTotal < 100) {
+				round = roll1 = 0;
+				System.out.print("\n");
+				System.out.println("Computer turn score: "+round);
+				System.out.println("Computer total score: "+compTotal);
+				Prompt.getString("Press enter for computer turn");
+				while(round < 20 && roll1 != 1) {
+					System.out.println("\nComputer will ROLL");
+					roll1 = dice.roll();
+					round += roll1;
+					dice.printDice();
+					System.out.println("Computer turn score: "
+														+round);
+					System.out.println("Computer total score: "
+													+compTotal+"\n");
+					if(roll1 == 1) {
+						System.out.println("\nComputer LOSES their"
+														+ " turn.");
+					}
+					else if(round < 20) {
+						Prompt.getString("Press enter for computer "
+														+"turn");
+					}
+				}
+				if(roll1 >= 20) {
+					System.out.println("\nComputer will HOLD");
+					compTotal += round;
+				}
+				System.out.print("Computer total score: "+compTotal);
+			}
+		}
+		if(yourTotal == compTotal) {
+			System.out.print("tie");
+		}
+		else if(yourTotal > compTotal) {
+			System.out.println("Congratulations!!! You WON!!!");
+		}
+		else {
+			System.out.print("Too bad. COMPUTER WON.");
+		}
+		System.out.println("\nThanks for playing the Pig Game!!!");
+	}
+	/** runs statistics */
+	public void statistics() {
+		int holdNum = 20; // minimum value computer starts to hold
+		System.out.println("\nRun statistical analysis - "
+												+ "\"Hold at 20\"\n");
+		// number of turns that are run to get probability
+		int turnNum = Prompt.getInt("Number of Turns", 1000, 10000000);
+		//
+		int[] scoreCounts = new int[7];
+		for(int i=0;i<7;i++) {
+			scoreCounts[i] = 0;
+		}
+		for(int i=0;i<turnNum;i++) {
+			int diceRoll = 0;
+			int rollTotal = 0;
+			while(rollTotal < 20 && diceRoll != 1) {
+				diceRoll = (int)(6*Math.random()+1);
+				rollTotal += diceRoll;
+			}
+			if(diceRoll == 1) {
+				scoreCounts[0]++;
+			}
+			else {
+				scoreCounts[rollTotal-holdNum+1]++;
+			}
+		}
+		int scoreSums = scoreCounts[0]+scoreCounts[1]+scoreCounts[2]
+			+scoreCounts[3]+scoreCounts[4]+scoreCounts[5]+scoreCounts[6];
+		double[] scorePercents = new double[7];
+		for(int i=0;i<7;i++) {
+			scorePercents[i] = ((double)scoreCounts[i])/scoreSums;
+		}
+		System.out.printf("\n%-8sEstimated Probability","Score");
+		System.out.printf("\n%-8d%-10.6f",0,scorePercents[0]);
+		for(int i=1;i<7;i++) {
+			System.out.printf("\n%-8d%-10.6f",i+holdNum-1,scorePercents[i]);
+		}
+		System.out.print("\n");
 	}
 	/**	Print the introduction to the game */
 	public void printIntroduction() {
