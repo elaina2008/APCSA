@@ -24,7 +24,7 @@ public class PigGame {
 	}
 	/** main class */
 	public static void main(String [] args) {
-		PigGame pg = new PigGame();
+		PigGame pg = new PigGame(); // creates a copy of the game
 		pg.runner();
 	}
 	/** runner method to run all code */
@@ -44,7 +44,7 @@ public class PigGame {
 		}
 			
 	}
-	/** plays the game */
+	/** method to rotate between user and computer turns of playing PigGame*/
 	public void playGame() {
 		while(yourTotal < 100 && compTotal < 100) {
 			round = roll1 = 0;
@@ -106,7 +106,7 @@ public class PigGame {
 			}
 		}
 		if(yourTotal == compTotal) {
-			System.out.print("tie");
+			System.out.print("It's a tie!");
 		}
 		else if(yourTotal > compTotal) {
 			System.out.println("Congratulations!!! You WON!!!");
@@ -118,19 +118,19 @@ public class PigGame {
 	}
 	/** runs statistics */
 	public void statistics() {
-		int holdNum = 20; // minimum value computer starts to hold
+		int holdNum = 20; // minimum value computer starts to hold at
 		System.out.println("\nRun statistical analysis - "
 												+ "\"Hold at 20\"\n");
-		// number of turns that are run to get probability
+		// number of trials done to calculate probabilities of each outcome
 		int turnNum = Prompt.getInt("Number of Turns", 1000, 10000000);
-		//
+		// keeps track of the number of trials where each score is obtained
 		int[] scoreCounts = new int[7];
 		for(int i=0;i<7;i++) {
 			scoreCounts[i] = 0;
 		}
 		for(int i=0;i<turnNum;i++) {
-			int diceRoll = 0;
-			int rollTotal = 0;
+			int diceRoll = 0; // simulates each roll of die object
+			int rollTotal = 0; // keeps track of round score
 			while(rollTotal < 20 && diceRoll != 1) {
 				diceRoll = (int)(6*Math.random()+1);
 				rollTotal += diceRoll;
@@ -142,11 +142,10 @@ public class PigGame {
 				scoreCounts[rollTotal-holdNum+1]++;
 			}
 		}
-		int scoreSums = scoreCounts[0]+scoreCounts[1]+scoreCounts[2]
-			+scoreCounts[3]+scoreCounts[4]+scoreCounts[5]+scoreCounts[6];
-		double[] scorePercents = new double[7];
+		// array keeping track of calculated probabilities for each outcome
+		double[] scorePercents = new double[7]; 
 		for(int i=0;i<7;i++) {
-			scorePercents[i] = ((double)scoreCounts[i])/scoreSums;
+			scorePercents[i] = ((double)scoreCounts[i])/turnNum;
 		}
 		System.out.printf("\n%-8sEstimated Probability","Score");
 		System.out.printf("\n%-8d%-10.6f",0,scorePercents[0]);
