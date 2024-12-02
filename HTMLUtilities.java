@@ -36,13 +36,20 @@ public class HTMLUtilities {
 		// check for preformat
 		if(str.equals("<pre>")) {
 			state = TokenState.PREFORMAT;
-		}
-		if(state == TokenState.PREFORMAT) {
-			result[tokenCount] = str;
+			result[tokenCount] = "<pre>";
 			tokenCount++;
 		}
+		else if(str.trim().equals("</pre>")) {
+			state = TokenState.NONE;
+			result[tokenCount] = "</pre>";
+			tokenCount++;
+		}
+		else if(state == TokenState.PREFORMAT) {
+			result[tokenCount] = str;
+			tokenCount++;
+		}	
 		// cycles through full string to break up into tokens
-		if(state != TokenState.PREFORMAT) while(index < str.length()) {
+		else while(index < str.length()) {
 			String token = "";
 			if(index+4 < str.length() && state == TokenState.NONE
 			&& str.substring(index,index+"<!--".length()).equals("<!--")) {
@@ -50,6 +57,9 @@ public class HTMLUtilities {
 			}
 			if(state == TokenState.COMMENT) {
 				index++;
+			}
+			else if(str.equals("</pre>")) {
+				state = TokenState.NONE;
 			}
 			else if(Character.isWhitespace(str.charAt(index))) index++;
 			else {
@@ -89,7 +99,7 @@ public class HTMLUtilities {
 				else if(isPunctuation(str.charAt(index))) {
 					index2 = index + 1;
 				}
-				result[tokenCount] = str.substring(index, index2);
+				result[tokenCount] = str.substring(index, index2).trim();
 				index = index2;
 				tokenCount++;
 			}
@@ -97,9 +107,7 @@ public class HTMLUtilities {
 				index = str.indexOf("-->",index)+"-->".length();
 				state = TokenState.NONE;
 			}
-			if(str.equals("</pre>")) {
-				state = TokenState.NONE;
-			}
+			
 		}
 		//return the correctly sized array
 		String[] result2 = new String[tokenCount];
